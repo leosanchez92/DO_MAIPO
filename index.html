@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <title>D.O. Maipo</title>
+    <!-- CSS only -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+    <!-- JavaScript Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
+    <link href="assets/css/index.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/leaflet.groupedlayercontrol.min.css"/>
+    <script src="assets/js/leaflet.groupedlayercontrol.min.js"></script>
+    <script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
+    <script src="https://kit.fontawesome.com/051401fe98.js" crossorigin="anonymous"></script>
+    <script src="data/do_geo.js"></script>
+    <script src="data/vinas.js"></script>
+
+    <style>
+       #map{
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+}
+
+    body{
+        overflow-x: hidden;
+    }
+      </style>
+
+</head>
+<body>
+<div id="map"></div>
+
+<script>
+/*INVOCO MAPA*/
+var map = L.map('map').setView([-33.46145955168999, -70.52499594400189],8)
+/*AGREGO TILE FONDO*/    
+var ESRI = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+maxZoom: 19,
+attribution: '© ESRI'}).addTo(map);
+
+var openTopo = L.tileLayer('https://tile.opentopomap.org/{z}/{x}/{y}.png', {
+    attribution: 'TopOSM was created by User:Ahlzen, with contributions from several others, including Ian Dees, Nick Thompson and Phil Gold.',
+    opacity: 1.0,
+    maxZoom: 19,
+    minNativeZoom: 0,
+    maxNativeZoom: 18,
+    zIndex: 397,
+});
+
+/*ESTILO DO*/
+
+function getColor(d) {
+return d ==	"Js2c"	? 'rgb(	14	,	205	,	255)' :
+d ==	"TrJg"	? 'rgb(	245	,	81	,	226	)' :
+d ==	"Jsg"	? 'rgb(	250	,	168	,	168	)' :
+d ==	"M3b"	? 'rgb(	245	,	197	,	168	)' :
+d ==	"PPl1c"	? 'rgb(	255	,	255	,	23	)' :
+d ==	"Msg"	? 'rgb(	255	,	52	,	81	)' :
+d ==	"CPg"	? 'rgb(	255	,	226	,	255	) ':
+d ==	"KT2"	? 'rgb(	168	,	255	,	139	) ':
+d ==	"J2m"	? 'rgb(	197	,	255	,	255	) ':
+d ==	"OM2c"	? 'rgb(	240	,	255	,	168	)' :
+d ==	"Ks3a"	? 'rgb(	183	,	255	,	81	)' :
+d ==	"Kia2"	? 'rgb(	206	,	226	,	110	) ':
+d ==	"Js1m"	? 'rgb(	23	,	168	,	255	) ':
+d ==	"PPl1r"	? 'rgb(	250	,	197	,	110	) ':
+d ==	"Ksh"	? 'rgb(	255	,	139	,	226	)' :
+d ==	"Mh"	? 'rgb(	216	,	168	,	0	)' :
+d ==	"Msh"	? 'rgb(	250	,	168	,	0	) ':
+d ==	"DC4"	? 'rgb(	240	,	226	,	226	) ':
+d ==	"PTrg"	? 'rgb(	255	,	109	,	109	) ':
+d ==	"Q1"	? 'rgb(	255	,	255	,	110	)' :
+d ==	"OM3b"	? 'rgb(	255	,	226	,	197	) ':
+d ==	"Ks2c"	? 'rgb(	110	,	255	,	110	) ':
+d ==	"M3i"	? 'rgb(	255	,	226	,	110	)' :
+d ==	"Q3av"	? 'rgb(	250	,	226	,	197	)' :
+d ==	"Ki2m"	? 'rgb(	139	,	168	,	110	) ':
+d ==	"Kiag"	? 'rgb(	250	,	52	,	197	) ':
+d ==	"Ki2c"	? 'rgb(	129	,	255	,	129	) ':
+d ==	"Qf"	? 'rgb(	255	,	255	,	226	)' :
+d ==	"Mimg"	? 'rgb(	250	,	81	,	168	) ':
+d ==	"Pl3t"	? 'rgb(	250	,	226	,	226	) ':
+d ==	"Ksg"	? 'rgb(	255	,	52	,	226	) ':
+                                '#fff389'
+}
+
+
+function styleDO(feature) {
+    return{
+        opacity: 0.8,
+        color: 'rgb(0, 0, 0)',
+        //dashArray: '10,5', (Línea punteada, mayor valor menos segmentos)
+        lineCap: 'butt',  
+        lineJoin: 'round',  //(Uniones, redondeadas o rectas)
+        weight: 1.2,
+        fill: true,
+        fillOpacity: 0.6,
+        fillColor: getColor(feature.properties.CD_GEOL),
+        interactive: true,
+    }
+}
+
+function highlightFeature(e) {
+      var layer = e.target;
+        layer.setStyle({
+          weight: 2.3,
+            dashArray: '',
+            fillOpacity: 0.2,
+            
+      });
+    }
+
+    function resetHighlightDO(e) {
+      d_origen.resetStyle(e.target);
+    }
+  
+    // onEachFeature PRC
+    function onEachFeatureDO(feature, layer) {    
+      layer.on({
+        mouseover: highlightFeature,
+        mouseout: resetHighlightDO,
+      });
+
+      var popupContent =  '<table class="table table-responsive table-sm table-borderless">\
+                          <tr class="">\
+                            <th scope="row">Zona</th>\
+                            <td>' +  ":" + '</td>\
+                            <td>' +  (feature.properties.UNIDAD) + '</td>\
+                          </tr>\
+                          <tr>\
+                            <th scope="" class="align-top">Descripción</th>\
+                            <td>' +  ":" + '</td>\
+                            <td>' +  (feature.properties.RANGO) + '</td>\
+                          </tr>\
+                          </table>\
+                          '
+                          ;
+      layer.bindPopup(popupContent,{
+        maxHeight: 200,
+        maxWidth: 350
+      });
+    }
+
+/*ESTILO VIÑA*/
+
+function onEachFeatureVina(feature, layer) {
+      var popupContent =  '<div style="text-align:center"><h6>Modificable</h6></div>\
+                          <table class="table table-sm table-borderless">\
+                          <tr>\
+                            <th scope="row">Ejemplo</th>\
+                            <td>' + ":" + '</td>\
+                            <td>' + (feature.properties.TIPO) + '</td>\
+                          </tr>\
+                          <tr>\
+                            <th scope="row">Viña</th>\
+                            <td>' + ":" + '</td>\
+                            <td>' + (feature.properties.VINNA) + '</td>\
+                          </tr>\
+                          </table>\
+                          '
+                          ;
+      layer.bindPopup(popupContent,{
+        maxHeight: 400,
+      });
+    }
+    var iconVina = {
+    radius: 8,
+    fillColor: "red",
+    color: "blue",
+    weight: 5,
+    height: 5,
+    fillOpacity: 0.8
+}
+
+
+
+/*DECLARO CAPAS*/
+var d_origen = new L.geoJson(do_geo, {
+    style: styleDO,
+    onEachFeature: onEachFeatureDO,
+}).addTo(map);
+
+var vinas = new L.geoJson(vinas_maipo, {
+    poinToLayer: function(feature, latlong) {
+        return L.circleMarker(latlong, {icon: iconVina(feature), interactive: true})
+},
+onEachFeature: onEachFeatureVina
+});
+
+    var basemaps = {
+        "MAPA BASE": ESRI,
+        "MAPA BASE 2": openTopo
+    }
+
+    var capas = {
+    "Capas" : {
+        'D.O. Maipo': d_origen,
+        'Viñas': vinas
+    }
+}
+
+var layerControl = new L.control.groupedLayers(basemaps, capas, {'collapsed': true}).addTo(map);
+
+/*AGREGO ESCALA*/
+var scale = L.control.scale({
+      imperial: false,
+      }
+    ); 
+    scale.addTo(map);
+
+</script>
+    
+
+
+
+
+
+
+</body>
+</html>
