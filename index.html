@@ -195,9 +195,9 @@ var d_origen = new L.geoJson(do_geo, {
 var vinas = new L.geoJson(vinas_maipo, {
     poinToLayer: function(feature, latlong) {
         return L.circleMarker(latlong, {icon: iconVina(feature), interactive: true})
-},
+    },
 onEachFeature: onEachFeatureVina
-});
+}).addTo(map);
 
     var basemaps = {
         "MAPA BASE": ESRI,
